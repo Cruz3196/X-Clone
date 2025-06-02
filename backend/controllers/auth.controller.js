@@ -1,3 +1,4 @@
+import { generateTokenAndSetCookie } from "../lib/utils/generateToken.js";
 import User from "../models/user.models.js";
 import bcrypt from "bcryptjs";
 
@@ -22,6 +23,10 @@ export const signup = async (req, res) => {
         const existingEmail = await User.findOne({ email });
             if(existingEmail){
                 return res.status(400).json({error: "Email is already in use"});
+            }
+
+            if(password.length < 6){
+                return res.status(400).json({error: "Password must be at least 6 characters"});
             }
         
         // hashing the password 
