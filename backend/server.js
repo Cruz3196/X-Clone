@@ -21,7 +21,7 @@ app.use(express.urlencoded({ extended: true })); // to parse the form data
 app.use(cookieParser()); 
 
 app.use("/api/auth", authRoutes);
-app.use("/api/auth", userRoutes);
+app.use("/api/users", userRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server is running on this port ${PORT}`);
