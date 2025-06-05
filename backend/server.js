@@ -3,11 +3,11 @@ import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 
-// routes 
+// routes
 import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
 
-// util
+// utils
 import connectMongDB from "./db/connectMongoDB.js";
 
 dotenv.config();
