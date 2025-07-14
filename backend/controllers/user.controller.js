@@ -115,14 +115,14 @@ export const updateUser = async (req, res) => {
             const salt = await bcrypt.genSalt(10);
             user.password = await bcrypt.hash(newPassword, salt);
         }
-
+// to able to update an image or store an image, I'll be using "cloudinary"
         if(profileImg) {
 
         }
         if(coverImg) {
             
         }
-        
+
     } catch (error) {
 
     }
