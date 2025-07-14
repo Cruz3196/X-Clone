@@ -1,5 +1,6 @@
 import User from "../models/user.models.js";
 import Notification from "../models/notification.model.js";
+import bcrypt from "bcryptjs";
 
 export const getUserProfile = async (req, res) => {
     const {username} = req.params;
@@ -95,8 +96,34 @@ export const updateUser = async (req, res) => {
     const userId = req.user._id;
 
     try {
+        const user = await user.findById(userId);
+        if(!user) return res.status(404).json({ message: "User not found" }); 
+    //checking having to have the current password and the new password
+        if((!newPassword && currentPassword) || (!currentPassword && newPassword)){
+            return res.status(400).json({ error: "Please provide both current password and new password"});
+        }
 
-    } catch (error) {
+        if(currentPassword && newPassword){
+            // user.password is the actual password that user has in the database
+            const isMatch = await bcrypt.compare(currentPassword, user.password);
+            //checking the conditions that must be met for changing the password
+            if(!isMatch) return res.status(400).json({ error: "Current password is incorrect"});
+            if(newPassword.length < 6){
+                return res.status(400).json({ error: "Password must be at least 6 characters long" });
+            }
+
+            const salt = await bcrypt.genSalt(10);
+            user.password = await bcrypt.hash(newPassword, salt);
+        }
+
+        if(profileImg) {
+
+        }
+        if(coverImg) {
+            
+        }
         
+    } catch (error) {
+
     }
 };
