@@ -24,7 +24,7 @@ cloudinary.config({
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-app.use(express.json()); // to parse req.body
+app.use(express.json({limit: "5mb"})); // to parse req.body & allowing large files to be uploaded. also this shouldn't be too large if an attacker sends a large request to your application, then your server might crash.which is called DoS (DoS = Denial of Service)
 app.use(express.urlencoded({ extended: true })); // to parse the form data 
 
 app.use(cookieParser()); 

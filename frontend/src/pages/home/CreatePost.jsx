@@ -31,7 +31,7 @@ const CreatePost = () => {
 				return data 
 
 			}catch (error){
-				throw new Error(error)
+				throw new Error("Failed to create post");
 			}
 		},
 		onSuccess: () => {
