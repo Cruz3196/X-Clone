@@ -12,6 +12,7 @@ import { useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 const Post = ({ post }) => {
 	const [comment, setComment] = useState("");
 	//* here we use the useQuery hook to get the authenticated user
+	//* using a usequery to validate if the post is mine or not, if it is then we can call the delete mutation which will send the delete method, then show the toast then invalidate the query to refetch the post and update the ui. 
 	const {data:authUser} = useQuery({ queryKey: ["authUser"]})
 	const queryClient = useQueryClient();
 
