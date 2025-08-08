@@ -3,7 +3,8 @@ import { BiRepost } from "react-icons/bi";
 import { FaRegHeart } from "react-icons/fa";
 import { FaRegBookmark } from "react-icons/fa6";
 import { FaTrash } from "react-icons/fa";
-import { useState } from "react";
+import { use, useState } from "react";
+import { formatPostDate } from "../../utils/date";
 import { Link } from "react-router-dom";
 import {toast} from "react-hot-toast";
 import LoadingSpinner from "./LoadingSpinner";
@@ -15,6 +16,15 @@ const Post = ({ post }) => {
 	//* using a usequery to validate if the post is mine or not, if it is then we can call the delete mutation which will send the delete method, then show the toast then invalidate the query to refetch the post and update the ui. 
 	const {data:authUser} = useQuery({ queryKey: ["authUser"]})
 	const queryClient = useQueryClient();
+	const postOwner = post.user;
+	const isLiked = post.likes.includes(authUser._id);
+
+	//* validating that the user auth is the owner of the post, this is will be used to delete the post.
+
+	const isMyPost = authUser._id === postOwner._id;
+
+	//* this will be used to format the time the post was created or for the comment 
+	const formattedDate = formatPostDate(post.createdAt);
 
 	const {mutate:deletePost, isPending: isDeleting} = useMutation({
 		mutationFn: async() => {
@@ -64,14 +74,13 @@ const Post = ({ post }) => {
 
 			//! the oldDAta is the call back function that receives the current data from the cache for the "posts" query. 
 			// queryClient.setQueryData(["posts"], (oldData) => {
-			// 	return oldData.map(p => {
+			// 	return oldData.map((p) => {
 			// 		if(p._id === post._id){
 			// 			return {...p,likes:updatedLikes};
 			// 		}
 			// 		return p;
 			// 	});
 			// });
-		
 		},
 		
 
@@ -80,16 +89,45 @@ const Post = ({ post }) => {
 		}
 	});
 
-	const postOwner = post.user;
-	const isLiked = post.likes.includes(authUser._id);
+	const { mutate: commentPost, isPending: isCommenting } = useMutation({
+		mutationFn: async () => {
+			try {
+				const res = await fetch(`/api/posts/comment/${post._id}`, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({ text: comment }),
+				})
+				const data = await res.json();
 
-	//* validating that the user auth is the owner of the post, this is will be used to delete the post.
+				if(!res.ok){
+					throw new Error(data.error || "Something went wrong");
+				}
+				return data;
+			} catch (error) {
+				throw new Error(error);
+			}
+		},
+		onSuccess: () => {
+			toast.success("Comment added successfully");
+			setComment("");
+			queryClient.invalidateQueries({queryKey: ["posts"]});
 
-	const isMyPost = authUser._id === postOwner._id;
-
-	const formattedDate = "1h";
-
-	const isCommenting = false;
+			//! the oldDAta is the call back function that receives the current data from the cache for the "posts" query. 
+			// queryClient.setQueryData(["posts"], (oldData) => {
+			// 	return oldData.map((p) => {
+			// 		if(p._id === post._id){
+			// 			return {...p,likes:updatedLikes};
+			// 		}
+			// 		return p;
+			// 	});
+			// });
+		},
+		onError: (error) => {
+			toast.error(error.message);
+		}
+	})
 
 	const handleDeletePost = () => {
 		deletePost(); 
@@ -97,6 +135,8 @@ const Post = ({ post }) => {
 
 	const handlePostComment = (e) => {
 		e.preventDefault();
+		if (isCommenting) return;
+		commentPost(); 
 	};
 
 	const handleLikePost = () => {
