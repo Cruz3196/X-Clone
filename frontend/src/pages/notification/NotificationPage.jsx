@@ -45,7 +45,6 @@ const NotificationPage = () => {
 		onSuccess: () => {
 			toast.success("Notifications deleted successfully"); 
 		},
-
 		onError: (error) => {
 			toast.error(error.message);
 		}
