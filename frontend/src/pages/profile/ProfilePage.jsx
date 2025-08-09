@@ -92,6 +92,7 @@ const ProfilePage = () => {
 		}
 	});
 
+
 	const isMyProfile = authUser._id === user?._id;
 	//* this has to be under the useQuery because we are calling the user variable from the useQuery, if we call it before the useQuery it will be undefined. as the user variable would be undefined before the useQuery is called
 	const memberSinceDate = formatMemberSinceDate(user?.createdAt); 
