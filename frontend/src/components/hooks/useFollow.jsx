@@ -27,7 +27,7 @@ const useFollow = () => {
              //* this will invalidate the suggested users, so when the user follows one of the users it will be removed from the list and update the ui.
             queryClient.invalidateQueries({queryKey: ["suggestedUsers"]}),
             //* this will be for when a user clicks follow on the profile it will change the button to unfollow
-            queryClient.invalidateQueries({queryKey: ["authUsers"]}),
+            queryClient.invalidateQueries({queryKey: ["authUser"]}),
             ])
         },
         onError: (error) => {
