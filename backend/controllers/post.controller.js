@@ -43,11 +43,11 @@ export const getFollowingPosts = async (req, res) => {
             .sort({ createdAt: -1 })
             .populate({
                 path: "user",
-                select: ["-password", "-email", "-fullName"],
+                select: ["-password"],
             })
             .populate({
                 path: "comments.user",
-                select: ["-password", "-email", "-fullName"],
+                select: ["-password"],
             });
 
         // FIX: Send the array directly, not wrapped in an object.
