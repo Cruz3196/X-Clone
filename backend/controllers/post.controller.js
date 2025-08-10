@@ -90,10 +90,10 @@ export const getLikedPosts = async (req, res) => {
 
         const likedPosts = await Post.find({_id: {$in: user.likedPosts}}).populate({
             path: "user",
-            select: ["-password", "-email", "-fullName"]
+            select: ["-password"]
         }).populate({
             path: "comments.user",
-            select: ["-password", "-email", "-fullName"]
+            select: ["-password"]
         });
 
         res.status(200).json(likedPosts);
