@@ -12,19 +12,20 @@ import { useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
 
 const Post = ({ post }) => {
 	const [comment, setComment] = useState("");
-	//* here we use the useQuery hook to get the authenticated user
-	//* using a usequery to validate if the post is mine or not, if it is then we can call the delete mutation which will send the delete method, then show the toast then invalidate the query to refetch the post and update the ui. 
 	const {data:authUser} = useQuery({ queryKey: ["authUser"]})
 	const queryClient = useQueryClient();
+	
+	// Add this check to prevent the error
+	if (!authUser) {
+		return <LoadingSpinner size="md" />;
+	}
+	
 	const postOwner = post.user;
 	const isLiked = post.likes.includes(authUser._id);
-
-	//* validating that the user auth is the owner of the post, this is will be used to delete the post.
-
 	const isMyPost = authUser._id === postOwner._id;
-
-	//* this will be used to format the time the post was created or for the comment 
 	const formattedDate = formatPostDate(post.createdAt);
+
+	// ... rest of your mutations and handlers stay the same
 
 	const {mutate:deletePost, isPending: isDeleting} = useMutation({
 		mutationFn: async() => {
@@ -45,9 +46,7 @@ const Post = ({ post }) => {
 		},
 		onSuccess: ()=>{
 			toast.success("Post deleted")
-		//* invalidate the query to refetch the data
 			queryClient.invalidateQueries({queryKey: ["posts"]}); 
-		//* the above line is used to refetch the data after deleting the post and updating the UI.
 		}
 	})
 
@@ -68,22 +67,8 @@ const Post = ({ post }) => {
 		},
 		onSuccess: (updatedLikes) => {
 			toast.success("Post liked successfully");
-			// this is not the best ux experience, because it will refetch all post.
 			queryClient.invalidateQueries({queryKey: ["posts"]}); 
-			// instead, we can update the cache directly for that post.
-
-			// the oldDAta is the call back function that receives the current data from the cache for the "posts" query. 
-			// queryClient.setQueryData(["posts"], (oldData) => {
-			// 	return oldData.map((p) => {
-			// 		if(p._id === post._id){
-			// 			return {...p,likes:updatedLikes};
-			// 		}
-			// 		return p;
-			// 	});
-			// });
 		},
-		
-
 		onError: (error)=>{
 			toast.error(error.message); 
 		}
@@ -113,16 +98,6 @@ const Post = ({ post }) => {
 			toast.success("Comment added successfully");
 			setComment("");
 			queryClient.invalidateQueries({queryKey: ["posts"]});
-
-			//! the oldDAta is the call back function that receives the current data from the cache for the "posts" query. 
-			// queryClient.setQueryData(["posts"], (oldData) => {
-			// 	return oldData.map((p) => {
-			// 		if(p._id === post._id){
-			// 			return {...p,likes:updatedLikes};
-			// 		}
-			// 		return p;
-			// 	});
-			// });
 		},
 		onError: (error) => {
 			toast.error(error.message);
@@ -165,7 +140,6 @@ const Post = ({ post }) => {
 						{isMyPost && (
 							<span className='flex justify-end flex-1'>
 								{!isDeleting && <FaTrash className='cursor-pointer hover:text-red-500' onClick={handleDeletePost} />}
-
 								{isDeleting && (
 									<LoadingSpinner size="sm"/>
 								)}
@@ -193,7 +167,7 @@ const Post = ({ post }) => {
 									{post.comments.length}
 								</span>
 							</div>
-							{/* We're using Modal Component from DaisyUI */}
+							{/* Modal for comments */}
 							<dialog id={`comments_modal${post._id}`} className='modal border-none outline-none'>
 								<div className='modal-box rounded border border-gray-600'>
 									<h3 className='font-bold text-lg mb-4'>COMMENTS</h3>
